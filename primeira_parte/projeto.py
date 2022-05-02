@@ -6,7 +6,7 @@ from pyspark.sql.functions import split
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:
-        print("Usage: app.py <hostname> <port> <hostname> <port>", file=sys.stderr)
+        print("Usage: app.py <hostname> <port> <hostname2> <port2>", file=sys.stderr)
         sys.exit(-1)
 
     host = sys.argv[1]

@@ -15,63 +15,58 @@
 # limitations under the License.
 #
 
+"""
+ Run the example
+    `$ bin/spark-submit projeto2 \
+    host1:port1,host2:port2 subscribe topic1,topic2`
+"""
 import sys
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import explode
 from pyspark.sql.functions import split
 
-
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
-        print("Usage: app.py <hostname> <port> <hostname2> <port2>", file=sys.stderr)
+    if len(sys.argv) != 4:
+        print("""
+        Usage: structured_kafka_wordcount.py <bootstrap-servers> <subscribe-type> <topics>
+        """, file=sys.stderr)
         sys.exit(-1)
 
-    host = sys.argv[1]
-    port = int(sys.argv[2])
-    host2 = sys.argv[3]
-    port2 = int(sys.argv[4])
+    bootstrapServers = sys.argv[1]
+    subscribeType = sys.argv[2]
+    topics = sys.argv[3]
 
-    #inicia a sessão no spark
     spark = SparkSession\
-      .builder\
-        .appName("newAPP TESTE")\
+        .builder\
+        .appName("StructuredKafkaWordCount")\
         .getOrCreate()
-
-    # cria o dataframe que representará os dados da stream
+    spark.sparkContext.setLogLevel('WARN')
+    # Create DataSet representing the stream of input lines from kafka
     lines = spark\
         .readStream\
-        .format('socket')\
-        .option('host', host)\
-        .option('port', port)\
-        .load()
+        .format("kafka")\
+        .option("kafka.bootstrap.servers", bootstrapServers)\
+        .option(subscribeType, topics)\
+        .load()\
+        .selectExpr("CAST(value AS STRING)")
 
-    lines2 = spark\
-      .readStream\
-      .format('socket')\
-      .option('host', host2)\
-      .option('port', port2)\
-      .load()
-
-    lines = lines.union(lines2)
-
-    # separa as linhas em palavras
+    # Split the lines into words
     words = lines.select(
-        # explode transforma cada item do array em uma linha
+        # explode turns each item in an array into a separate row
         explode(
             split(lines.value, ' ')
         ).alias('word')
     )
-    
-    # agrupa as palavras todas na mesma tabela
+
+    # Generate running word count
     wordCounts = words.groupBy('word').count()
 
-    # escreve a resposta toda vez que houver mudança na stream
+    # Start running the query that prints the running counts to the console
     query = wordCounts\
         .writeStream\
         .outputMode('complete')\
-        .option("numRows", 50)\
         .format('console')\
         .start()
 
     query.awaitTermination()
-    

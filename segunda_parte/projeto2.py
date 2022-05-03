@@ -25,6 +25,7 @@ import sys
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import explode
 from pyspark.sql.functions import split
+import pyspark.sql.functions as F
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
@@ -59,8 +60,19 @@ if __name__ == "__main__":
         ).alias('word')
     )
 
+    
     # Generate running word count
     wordCounts = words.groupBy('word').count()
+    todasPalavras = words.groupBy().count()
+    pPalavra = words.filter(F.col("word").substr(1, 1) == "p").groupBy().count()
+    pPalavra = pPalavra.selectExpr("cast (count as string) p")
+
+    sPalavra = words.filter(F.col("word").substr(1, 1) == "s").groupBy().count()
+    sPalavra = sPalavra.selectExpr("cast (count as string) s")
+
+    rPalavra = words.filter(F.col("word").substr(1, 1) == "r").groupBy().count()
+    rPalavra = rPalavra.selectExpr("cast (count as string) r")
+
 
     # Start running the query that prints the running counts to the console
     query = wordCounts\
@@ -69,4 +81,33 @@ if __name__ == "__main__":
         .format('console')\
         .start()
 
+    query2 = todasPalavras\
+        .writeStream\
+        .outputMode('complete')\
+        .format('console')\
+        .start()
+
+    query3 = pPalavra\
+        .writeStream\
+        .outputMode("update")\
+        .format("console")\
+        .start()
+
+    query4 = sPalavra\
+        .writeStream\
+        .outputMode("update")\
+        .format("console")\
+        .start()
+
+    query5 = rPalavra\
+        .writeStream\
+        .outputMode("update")\
+        .format("console")\
+        .start()
+
     query.awaitTermination()
+    query2.awaitTermination()
+    query3.awaitTermination()
+    query4.awaitTermination()
+    query5.awaitTermination()
+

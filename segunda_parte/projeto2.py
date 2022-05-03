@@ -43,7 +43,8 @@ if __name__ == "__main__":
         .appName("StructuredKafkaWordCount")\
         .getOrCreate()
     spark.sparkContext.setLogLevel('WARN')
-    # Create DataSet representing the stream of input lines from kafka
+
+    # Criando DataSet que representa a stream de entradas do Kafka
     lines = spark\
         .readStream\
         .format("kafka")\
@@ -52,16 +53,16 @@ if __name__ == "__main__":
         .load()\
         .selectExpr("CAST(value AS STRING)")
 
-    # Split the lines into words
+    # Transformando as linhas em um array de palavras
     words = lines.select(
-        # explode turns each item in an array into a separate row
+        # explode transforma cada item do array em uma linha
         explode(
             split(lines.value, ' ')
         ).alias('word')
     )
 
     
-    # Generate running word count
+    # Gerando a contagem de palavras
     wordCounts = words.groupBy('word').count()
     todasPalavras = words.groupBy().count()
     pPalavra = words.filter(F.lower(F.col("word").substr(1, 1)) == "p").groupBy().count()
@@ -83,7 +84,7 @@ if __name__ == "__main__":
     palavra11 = words.filter(F.length("word") == 11).groupBy().count()
     palavra11 = palavra11.selectExpr("cast (count as string) onze")
 
-    # Start running the query that prints the running counts to the console
+    # Começando a rodar as query's que serão responsaveis por printar as contagens na console
     query = wordCounts\
         .writeStream\
         .outputMode('complete')\

@@ -61,7 +61,7 @@ bin/kafka-console-producer.sh --topic quickstart-events --bootstrap-server local
 ```
 Para rodar o programa precisamos de rodar o seguinte comando na pasta do spark:
 ```
-/bin/spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.1 projeto2.py localhost:9092 subscribe quickstart-events
+bin/spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.1 projeto2.py localhost:9092 subscribe quickstart-events
 ```
 onde 'localhost' pode ser substituido por outro host, 'subscribe' que é o tipo do subscribe pode ser 'assign', 'subscribe', ou 'subscribePattern' e 'quickstar-events' pode ser substituido pelo nome do tópico, se necessário podem ser escritos separados por virgula.
 

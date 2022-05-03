@@ -29,9 +29,10 @@ Também é necessário instalar e configurar o Kafka com os seguintes passos:
 Passo 1: Instalação
 	Para começar o experimento é necessário a instalação do JAVA versão 8 ou superior que é a versão recomendada pelo próprio Kafka.
 	Logo em seguida é necessário o download do Kafka pelo link, após o download utilize os seguintes comandos:
+	
 	tar -xzf kafka_2.13-3.1.0.tgz 
-cd kafka_2.13-3.1.0
-
+	cd kafka_2.13-3.1.0
+	```
 Passo 2: Iniciando o ambiente
 	Após isso temos de inicializar o ambiente do Kafka rodando os seguintes comandos em ordem, cada um em um terminal diferente:
 ```

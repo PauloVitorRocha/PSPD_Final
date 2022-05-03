@@ -64,15 +64,24 @@ if __name__ == "__main__":
     # Generate running word count
     wordCounts = words.groupBy('word').count()
     todasPalavras = words.groupBy().count()
-    pPalavra = words.filter(F.col("word").substr(1, 1) == "p").groupBy().count()
+    pPalavra = words.filter(F.lower(F.col("word").substr(1, 1)) == "p").groupBy().count()
     pPalavra = pPalavra.selectExpr("cast (count as string) p")
 
-    sPalavra = words.filter(F.col("word").substr(1, 1) == "s").groupBy().count()
+    sPalavra = words.filter(F.lower(F.col("word").substr(1, 1)) == "s").groupBy().count()
     sPalavra = sPalavra.selectExpr("cast (count as string) s")
 
-    rPalavra = words.filter(F.col("word").substr(1, 1) == "r").groupBy().count()
+    rPalavra = words.filter(F.lower(F.col("word").substr(1, 1)) == "r").groupBy().count()
     rPalavra = rPalavra.selectExpr("cast (count as string) r")
 
+
+    palavra6 = words.filter(F.length("word") == 6).groupBy().count()
+    palavra6 = palavra6.selectExpr("cast (count as string) seis")
+
+    palavra8 = words.filter(F.length("word") == 8).groupBy().count()
+    palavra8 = palavra8.selectExpr("cast (count as string) oito")
+
+    palavra11 = words.filter(F.length("word") == 11).groupBy().count()
+    palavra11 = palavra11.selectExpr("cast (count as string) onze")
 
     # Start running the query that prints the running counts to the console
     query = wordCounts\
@@ -105,9 +114,29 @@ if __name__ == "__main__":
         .format("console")\
         .start()
 
+    query6 = palavra6\
+        .writeStream\
+        .outputMode("update")\
+        .format("console")\
+        .start()
+    
+    query7 = palavra8\
+        .writeStream\
+        .outputMode("update")\
+        .format("console")\
+        .start()
+    
+    query8 = palavra11\
+        .writeStream\
+        .outputMode("update")\
+        .format("console")\
+        .start()
+
     query.awaitTermination()
     query2.awaitTermination()
     query3.awaitTermination()
     query4.awaitTermination()
     query5.awaitTermination()
-
+    query6.awaitTermination()
+    query7.awaitTermination()
+    query8.awaitTermination()
